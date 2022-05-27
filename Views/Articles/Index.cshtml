@@ -1,0 +1,130 @@
+﻿@model IEnumerable<Qiliqid.V1.Models.Article>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using GridMvc.Html
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            /* Supression */
+            $(".btn-delete-art").click(function (even) {
+                var btnClique = $(even.target).closest("button");
+                var idArticle = $(btnClique).attr("data-id");
+                var msg = "Voulez-vous vraiment supprimer cet article ?";
+                if (confirm(msg) == true) {
+                    $.ajax({
+                        url: '@Url.Action("Delete")',
+                        type: 'POST',
+                        data: { id: idArticle },
+                        success: function(data){
+                            if (data.Delete == "OK") {
+                                $(btnClique).closest("tr").fadeOut(400, function () {
+                                    $(this).remove();
+                                })
+                            }
+                        }
+                    });
+                }
+            });
+
+            /* Edition */
+            $(".btn-edit-art").click(function (even) {
+                var btnClique = $(even.target).closest("button");
+                var idArticle = $(btnClique).attr("data-id");
+                $.ajax({
+                    url: '@Url.Action("GoEdit")',
+                    type: 'POST',
+                    data: { id: idArticle },
+                    success: function(data){
+                        if (data.Edit == "OK") {
+                            window.location = "/Articles/Edit/" + data.Id;
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+
+}
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+@Html.Grid(Model).Columns(columns =>
+{
+    columns.Add().Sanitized(false).Encoded(false).RenderValueAs(a => a.Image);
+    columns.Add(a => a.Description).Filterable(true).Sanitized(false).Encoded(false).RenderValueAs(a => a.Description).Filterable(true);
+    columns.Add(a => a.Format).Sortable(true);
+    columns.Add(a => a.Marque).Filterable(true);
+    columns.Add(a => a.Prix).Sortable(true);
+    columns.Add(a => a.Periode).Sanitized(false).Encoded(false).RenderValueAs(a => a.DateDebut_DateFin).Sortable(true);
+    columns.Add(a => a.Magasin).Sanitized(false).Encoded(false).RenderValueAs(a => a.Magasin).Filterable(true);
+    columns.Add().Sanitized(false).Encoded(false).RenderValueAs(a => "<button title='Editer' data-id='" + a.Id + "' class='btn btn-primary btn-edit-art'><span class='glyphicon glyphicon-edit' /></button>");
+    columns.Add().Sanitized(false).Encoded(false).RenderValueAs(a => "<button title='Voir plus' data-id='" + a.Id + "' class='btn btn-success btn-details-art'><span class='glyphicon glyphicon-eye-open' /></button>");
+    columns.Add().Sanitized(false).Encoded(false).RenderValueAs(a => "<button title='Supprimer' data-id='"+ a.Id +"' class='btn btn-danger btn-delete-art'><span class='glyphicon glyphicon-remove-circle' /></button>");
+}).WithPaging(10);
+
+@*<table class="table">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Image)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Format)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Marque)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Prix)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DateDebut_DateFin)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Magasin)
+            </th>
+            <th></th>
+        </tr>
+
+    @foreach (var item in Model) {
+        <tr>
+            <td>
+                <img src=@item.Image />
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Format)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Marque)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Prix)
+            </td>
+            <td>
+               @item.DateDebut_DateFin
+            </td>
+            <td>
+                @item.Magasin
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+                @Html.ActionLink("Details", "Details", new { id=item.Id }) |
+                @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+            </td>
+        </tr>
+    }
+
+    </table>*@
